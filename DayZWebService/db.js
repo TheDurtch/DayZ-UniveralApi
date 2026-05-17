@@ -4,10 +4,14 @@ const log = require('./log');
 
 // ─── Nested-path helpers ──────────────────────────────────────────────────────
 
+// Guard against prototype pollution via malicious key names
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
 function getNestedValue(obj, dotPath) {
     const parts = dotPath.split('.');
     let cur = obj;
     for (const p of parts) {
+        if (UNSAFE_KEYS.has(p)) return undefined;
         if (cur == null || typeof cur !== 'object') return undefined;
         cur = cur[p];
     }
@@ -19,20 +23,24 @@ function setNestedValue(obj, dotPath, value) {
     let cur = obj;
     for (let i = 0; i < parts.length - 1; i++) {
         const p = parts[i];
+        if (UNSAFE_KEYS.has(p)) return;
         if (cur[p] == null || typeof cur[p] !== 'object') cur[p] = {};
         cur = cur[p];
     }
-    cur[parts[parts.length - 1]] = value;
+    const last = parts[parts.length - 1];
+    if (!UNSAFE_KEYS.has(last)) cur[last] = value;
 }
 
 function deleteNestedValue(obj, dotPath) {
     const parts = dotPath.split('.');
     let cur = obj;
     for (let i = 0; i < parts.length - 1; i++) {
+        if (UNSAFE_KEYS.has(parts[i])) return;
         if (cur == null) return;
         cur = cur[parts[i]];
     }
-    if (cur != null) delete cur[parts[parts.length - 1]];
+    const last = parts[parts.length - 1];
+    if (cur != null && !UNSAFE_KEYS.has(last)) delete cur[last];
 }
 
 // ─── MongoDB update-operator emulation ───────────────────────────────────────
@@ -570,10 +578,22 @@ class PostgreSQLCollection {
     }
 
     async insertMany(docs) {
+        if (docs.length === 0) return { insertedCount: 0, insertedIds: [] };
+        const pgClient = await this._pool.connect();
         let insertedCount = 0;
-        for (const doc of docs) {
-            await this.insertOne(doc);
-            insertedCount++;
+        try {
+            await pgClient.query('BEGIN');
+            for (const doc of docs) {
+                const { sql, values } = this._buildUpsertSQL(doc);
+                await pgClient.query(sql, values);
+                insertedCount++;
+            }
+            await pgClient.query('COMMIT');
+        } catch (e) {
+            await pgClient.query('ROLLBACK');
+            throw e;
+        } finally {
+            pgClient.release();
         }
         return { insertedCount, insertedIds: [] };
     }
@@ -740,10 +760,22 @@ class PostgreSQLGenericCollection {
     }
 
     async insertMany(docs) {
+        if (docs.length === 0) return { insertedCount: 0, insertedIds: [] };
+        await this._ensureTable();
+        const pgClient = await this._pool.connect();
         let insertedCount = 0;
-        for (const doc of docs) {
-            await this.insertOne(doc);
-            insertedCount++;
+        try {
+            await pgClient.query('BEGIN');
+            for (const doc of docs) {
+                await pgClient.query(`INSERT INTO "${this._table}" (doc) VALUES ($1)`, [JSON.stringify(doc)]);
+                insertedCount++;
+            }
+            await pgClient.query('COMMIT');
+        } catch (e) {
+            await pgClient.query('ROLLBACK');
+            throw e;
+        } finally {
+            pgClient.release();
         }
         return { insertedCount, insertedIds: [] };
     }
