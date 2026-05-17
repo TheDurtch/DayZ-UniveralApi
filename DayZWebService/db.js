@@ -4,16 +4,18 @@ const log = require('./log');
 
 // ─── Nested-path helpers ──────────────────────────────────────────────────────
 
-// Guard against prototype pollution via malicious key names
-const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+// Returns true for keys that could cause prototype pollution
+function isUnsafeKey(key) {
+    return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
 
 function getNestedValue(obj, dotPath) {
     const parts = dotPath.split('.');
     let cur = obj;
     for (const p of parts) {
-        if (UNSAFE_KEYS.has(p)) return undefined;
+        if (isUnsafeKey(p)) return undefined;
         if (cur == null || typeof cur !== 'object') return undefined;
-        cur = cur[p];
+        cur = Object.prototype.hasOwnProperty.call(cur, p) ? cur[p] : undefined;
     }
     return cur;
 }
@@ -23,24 +25,29 @@ function setNestedValue(obj, dotPath, value) {
     let cur = obj;
     for (let i = 0; i < parts.length - 1; i++) {
         const p = parts[i];
-        if (UNSAFE_KEYS.has(p)) return;
-        if (cur[p] == null || typeof cur[p] !== 'object') cur[p] = {};
+        if (isUnsafeKey(p)) return;
+        if (!Object.prototype.hasOwnProperty.call(cur, p) || cur[p] == null || typeof cur[p] !== 'object') {
+            cur[p] = {};
+        }
         cur = cur[p];
     }
     const last = parts[parts.length - 1];
-    if (!UNSAFE_KEYS.has(last)) cur[last] = value;
+    if (!isUnsafeKey(last)) {
+        cur[last] = value;
+    }
 }
 
 function deleteNestedValue(obj, dotPath) {
     const parts = dotPath.split('.');
     let cur = obj;
     for (let i = 0; i < parts.length - 1; i++) {
-        if (UNSAFE_KEYS.has(parts[i])) return;
+        const p = parts[i];
+        if (isUnsafeKey(p)) return;
         if (cur == null) return;
-        cur = cur[parts[i]];
+        cur = cur[p];
     }
     const last = parts[parts.length - 1];
-    if (cur != null && !UNSAFE_KEYS.has(last)) delete cur[last];
+    if (cur != null && !isUnsafeKey(last)) delete cur[last];
 }
 
 // ─── MongoDB update-operator emulation ───────────────────────────────────────
