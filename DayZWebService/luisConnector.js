@@ -1,5 +1,4 @@
 const { Router } = require('express');
-const { createClient } = require('./db');
 
 const log = require("./log")
 const fetch  = require('node-fetch');
