@@ -762,8 +762,8 @@ class PostgreSQLGenericCollection {
     }
 
     async insertOne(doc) {
-        await this._query(`INSERT INTO "${this._table}" (doc) VALUES ($1)`, [JSON.stringify(doc)]);
-        return { ops: [doc], insertedId: null };
+        const result = await this._query(`INSERT INTO "${this._table}" (doc) VALUES ($1) RETURNING id`, [JSON.stringify(doc)]);
+        return { ops: [doc], insertedId: result.rows[0].id };
     }
 
     async insertMany(docs) {
