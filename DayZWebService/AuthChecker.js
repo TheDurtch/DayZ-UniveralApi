@@ -1,5 +1,5 @@
 const {verify, sign} = require('jsonwebtoken');
-const { MongoClient } = require("mongodb");
+const { createClient } = require('./db');
 const {createHash} = require('crypto');
 const {isArray} = require('./utils');
 
@@ -80,7 +80,7 @@ function AuthPlayerGuid(auth, ignoreError = false){
 
 async function CheckPlayerAuth(guid, auth){
     let isAuth = false;
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const client = createClient();
     if ((await CheckAuthAgainstGUID(auth, guid, true))){
         try{
             await client.connect();

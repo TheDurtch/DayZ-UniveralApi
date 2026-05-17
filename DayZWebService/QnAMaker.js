@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const { MongoClient } = require("mongodb");
+const { createClient } = require('./db');
 
 const log = require("./log")
 const fetch  = require('node-fetch');
@@ -87,7 +87,7 @@ function GetHighestAnwser(answers, QnAconfig, question){
 }
 
 async function WriteQuestionToDataBase(question){
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const client = createClient();
     try{
         // Connect the client to the server       
         await client.connect(); 

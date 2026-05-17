@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const { MongoClient } = require("mongodb");
+const { createClient } = require('./db');
 const {CheckAuth,CheckServerAuth} = require('./AuthChecker')
 let {createHash} = require('crypto');
 
@@ -30,7 +30,7 @@ router.post('/Update/:ObjectId/:mod', (req, res)=>{
 
 async function runGet(req, res, ObjectId, mod, auth) {
     if (CheckServerAuth(auth) || (await CheckAuth(auth)) ){
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         let StringData = JSON.stringify(req.body);
         let RawData = req.body;
         try{
@@ -83,7 +83,7 @@ async function runGet(req, res, ObjectId, mod, auth) {
 
 async function runSave(req, res, ObjectId, mod, auth) {  
     if (CheckServerAuth(auth) || ((await CheckAuth(auth)) && global.config.AllowClientWrite) ){
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         let RawData = req.body;
         try{
 
@@ -126,7 +126,7 @@ async function runSave(req, res, ObjectId, mod, auth) {
 async function runUpdate(req, res, ObjectId, mod, auth) {
     if ( CheckServerAuth(auth) || ((await CheckAuth(auth)) && global.config.AllowClientWrite) ){
         let RawData = req.body;
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         try{
             await client.connect();
             let element = RawData.Element;

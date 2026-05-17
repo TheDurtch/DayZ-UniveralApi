@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const { MongoClient } = require("mongodb");
+const { createClient } = require('./db');
 const {isArray, isObject, isEmpty, NormalizeToGUID} = require('./utils')
 const log = require("./log");
 
@@ -41,7 +41,7 @@ router.post('/PublicSave/:GUID/:mod', (req, res)=>{
 
 async function runGet(req, res, GUID, mod, auth) {
     if (  CheckServerAuth(auth) || (await CheckPlayerAuth(GUID, auth))){
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         try{
 
             await client.connect();
@@ -103,7 +103,7 @@ async function runGet(req, res, GUID, mod, auth) {
 };
 async function runSave(req, res, GUID, mod, auth) {
     if ( CheckServerAuth(auth) || ((await CheckPlayerAuth(GUID, auth)) && global.config.AllowClientWrite) ){
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         try{
             await client.connect();
 
@@ -146,7 +146,7 @@ async function runSave(req, res, GUID, mod, auth) {
 async function runUpdate(req, res, GUID, mod, auth) {
     if ( CheckServerAuth(auth) || ((await CheckPlayerAuth(GUID, auth)) && global.config.AllowClientWrite) ){
         let RawData = req.body;
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         try{
             await client.connect();
             let element = RawData.Element;
@@ -217,7 +217,7 @@ async function runUpdate(req, res, GUID, mod, auth) {
 };
 
 async function runGetPublic(req, res, GUID, mod, auth) {
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const client = createClient();
     try{ 
         await client.connect();
         // Connect the client to the server
@@ -274,7 +274,7 @@ async function runGetPublic(req, res, GUID, mod, auth) {
 };
 async function runSavePublic(req, res, GUID, mod, auth) {
     if ( CheckServerAuth(auth) || ((await CheckPlayerAuth(GUID, auth)) && global.config.AllowClientWrite) ){
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         try{
             await client.connect();
 

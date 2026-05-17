@@ -1,6 +1,7 @@
 {
     "DBServer": "mongodb://localhost:27017",
     "DB": "DayZ",
+    "DBType": "mongodb",
     "ServerAuth": "Hk@1k77Fxrut.ltqpT5mY)-rYIrNOHQdZM~8@b@~UeZy",
     "AllowClientWrite": false,
     "IP": "0.0.0.0",

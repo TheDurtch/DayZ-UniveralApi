@@ -1,5 +1,5 @@
 const {Router} = require('express');
-const { MongoClient, MongoError  } = require("mongodb");
+const { createClient } = require('./db');
 let {createHash} = require('crypto');
 const {makeAuthToken, CheckServerAuth} = require('./AuthChecker')
 
@@ -34,7 +34,7 @@ router.post('/:GUID', (req, res)=>{
 
 
 async function runGetAuth(req, res, GUID) {
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const client = createClient();
     try{
         // Connect the client to the server       
         await client.connect(); 

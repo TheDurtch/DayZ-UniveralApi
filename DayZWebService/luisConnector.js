@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { MongoClient } = require("mongodb");
+const { createClient } = require('./db');
 
 const log = require("./log")
 const fetch  = require('node-fetch');

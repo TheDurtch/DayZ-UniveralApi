@@ -1,6 +1,6 @@
 
 const {Router} = require('express');
-const { MongoClient } = require("mongodb");
+const { createClient } = require('./db');
 const {CheckAuth,CheckServerAuth} = require('./AuthChecker');
 const log = require("./log");
 const {isArray,GenerateLimiter} = require('./utils');
@@ -57,7 +57,7 @@ if (global.config.Translate !== undefined){
 
 
 async function runStatusCheck(req, res, auth) {
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const client = createClient();
     var returnError = "noauth"
     if (CheckServerAuth(auth) || (await CheckAuth(auth, true))){
         returnError = "noerror"
