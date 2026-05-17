@@ -119,23 +119,72 @@ function applyUpdate(doc, update) {
 
 // ─── MongoDB query emulation ─────────────────────────────────────────────────
 
+function valuesEqual(a, b) {
+    if (Array.isArray(a) || Array.isArray(b)) {
+        if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+        return a.every((item, index) => valuesEqual(item, b[index]));
+    }
+    if (a && b && typeof a === 'object' && typeof b === 'object') {
+        const aKeys = Object.keys(a);
+        const bKeys = Object.keys(b);
+        if (aKeys.length !== bKeys.length) return false;
+        return aKeys.every(key => Object.prototype.hasOwnProperty.call(b, key) && valuesEqual(a[key], b[key]));
+    }
+    return a === b;
+}
+
+function arrayContainsValue(arr, value) {
+    return Array.isArray(arr) && arr.some(item => valuesEqual(item, value));
+}
+
+function isOperatorObject(value) {
+    return value !== null && !Array.isArray(value) && typeof value === 'object'
+        && Object.keys(value).some(key => key.startsWith('$'));
+}
+
 function matchesCondition(docVal, cond) {
-    if (cond === null || typeof cond !== 'object') return docVal === cond;
+    if (Array.isArray(cond)) return Array.isArray(docVal) && valuesEqual(docVal, cond);
+    if (cond === null || typeof cond !== 'object') {
+        return Array.isArray(docVal) ? arrayContainsValue(docVal, cond) : docVal === cond;
+    }
+    if (!isOperatorObject(cond)) return matchesDoc(docVal, cond);
     for (const [op, opVal] of Object.entries(cond)) {
         switch (op) {
             case '$exists': if (opVal ? docVal === undefined : docVal !== undefined) return false; break;
-            case '$eq':     if (docVal !== opVal) return false; break;
-            case '$ne':     if (docVal === opVal) return false; break;
+            case '$eq': {
+                const matches = Array.isArray(docVal)
+                    ? (Array.isArray(opVal) ? valuesEqual(docVal, opVal) : arrayContainsValue(docVal, opVal))
+                    : valuesEqual(docVal, opVal);
+                if (!matches) return false;
+                break;
+            }
+            case '$ne': {
+                const matches = Array.isArray(docVal)
+                    ? (Array.isArray(opVal) ? valuesEqual(docVal, opVal) : arrayContainsValue(docVal, opVal))
+                    : valuesEqual(docVal, opVal);
+                if (matches) return false;
+                break;
+            }
             case '$gt':     if (!(docVal > opVal)) return false; break;
             case '$gte':    if (!(docVal >= opVal)) return false; break;
             case '$lt':     if (!(docVal < opVal)) return false; break;
             case '$lte':    if (!(docVal <= opVal)) return false; break;
-            case '$in':     if (!Array.isArray(opVal) || !opVal.includes(docVal)) return false; break;
-            case '$nin':    if (!Array.isArray(opVal) || opVal.includes(docVal)) return false; break;
+            case '$in':
+                if (!Array.isArray(opVal) || !(Array.isArray(docVal)
+                    ? opVal.some(value => arrayContainsValue(docVal, value))
+                    : opVal.some(value => valuesEqual(docVal, value)))) return false;
+                break;
+            case '$nin':
+                if (!Array.isArray(opVal) || (Array.isArray(docVal)
+                    ? opVal.some(value => arrayContainsValue(docVal, value))
+                    : opVal.some(value => valuesEqual(docVal, value)))) return false;
+                break;
             case '$regex': {
                 const flags = cond.$options || '';
                 const rx = opVal instanceof RegExp ? opVal : new RegExp(opVal, flags);
-                if (typeof docVal !== 'string' || !rx.test(docVal)) return false;
+                if (Array.isArray(docVal)) {
+                    if (!docVal.some(value => typeof value === 'string' && rx.test(value))) return false;
+                } else if (typeof docVal !== 'string' || !rx.test(docVal)) return false;
                 break;
             }
             case '$options': break; // consumed by $regex
