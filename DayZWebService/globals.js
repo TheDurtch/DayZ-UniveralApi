@@ -147,7 +147,7 @@ async function runTransaction(req, res, mod, auth){
 
 }
 async function runUpdate(req, res, mod, auth) {
-    if ( CheckServerAuth(auth) || ((await CheckPlayerAuth(GUID, auth)) && global.config.AllowClientWrite) ){
+    if (CheckServerAuth(auth) || (CheckAuth(auth) && global.config.AllowClientWrite)) {
         let RawData = req.body;
         const client = createClient();
         try{
