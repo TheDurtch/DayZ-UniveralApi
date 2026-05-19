@@ -6,7 +6,7 @@
 > **I will not provide support, bug fixes, or assistance of any kind.** Use at your own risk.
 > Pull requests are welcome, but there is no guarantee they will be reviewed or merged.
 
-This is a fork of [DaemonForge's DayZ Universal Api](https://github.com/daemonforge/DayZ-UniveralApi). The original project provides a Universal Api Mod and Webservice backend for DayZ server hosters, along with an easy-to-use API wrapper for modders building hived and cross-server mods. This fork adds experimental SQL (SQLite/PostgreSQL) backend support on top of the original MongoDB implementation.
+This is a fork of [DaemonForge's DayZ Universal Api](https://github.com/daemonforge/DayZ-UniveralApi). The original project provides a Universal API Mod and web service backend for DayZ server hosters, along with an easy-to-use API wrapper for modders building hived and cross-server mods. This fork adds experimental SQL (SQLite/PostgreSQL) backend support on top of the original MongoDB implementation.
 
 > **Note:** The web service is primarily tested against MongoDB. SQLite and PostgreSQL backend support exists in `db.js`, but it should still be considered experimental and less well-tested than the MongoDB backend.
 
