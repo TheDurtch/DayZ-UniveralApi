@@ -36,3 +36,58 @@ Developer documentation (from the original project) is available here: https://g
 - Toxicity Checker (TensorFlow Toxicity)
 - Translate (Libre Translate)
 - And more
+
+## Running the Linux Backend
+
+The `DayZWebService` backend is a **Node.js application** — there is no traditional compile step. You can either run it directly with Node.js or package it into a standalone Linux binary.
+
+### Option 1: Run directly with Node.js (recommended)
+
+Requires Node.js (v16+) installed on the Linux machine.
+
+```bash
+cd DayZWebService
+npm install
+cp sample-config.json config.json
+# Edit config.json with your database settings, auth key, etc.
+npm start
+```
+
+### Option 2: Package into a standalone Linux binary with `pkg`
+
+Produces a self-contained executable that does not require Node.js on the target machine.
+
+```bash
+cd DayZWebService
+npm install
+npx pkg . --targets node16-linux-x64 --output dayz-webservice-linux
+```
+
+Run the output binary on any Linux x64 server:
+
+```bash
+./dayz-webservice-linux
+```
+
+> **Note:** `better-sqlite3` is a native addon. If using SQLite, copy its compiled native module alongside the binary:
+> ```bash
+> cp node_modules/better-sqlite3/build/Release/better_sqlite3.node ./
+> ```
+
+### Database Configuration
+
+Copy `sample-config.json` to `config.json` and set `DBType` to match your database:
+
+| `DBType` value | Database |
+|---|---|
+| `"mongodb"` | MongoDB (default) |
+| `"sqlite"` or `"sqlite3"` | SQLite3 (file-based, simplest for local use) |
+| `"postgresql"`, `"postgres"`, or `"pg"` | PostgreSQL |
+
+**Example — SQLite (no separate server required):**
+```json
+{
+  "DBType": "sqlite",
+  "DBServer": "./mydb.sqlite"
+}
+```
