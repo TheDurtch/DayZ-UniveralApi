@@ -36,3 +36,74 @@ Developer documentation (from the original project) is available here: https://g
 - Toxicity Checker (TensorFlow Toxicity)
 - Translate (Libre Translate)
 - And more
+
+## Running the Linux Backend
+
+The `DayZWebService` backend is a **Node.js application** — there is no traditional compile step. You can either run it directly with Node.js or package it into a standalone Linux binary.
+
+### Option 1: Run directly with Node.js (recommended)
+
+Requires Node.js (v16+) installed on the Linux machine.
+
+```bash
+cd DayZWebService
+npm install
+node setup.js        # creates config.json with a unique ServerAuth
+# Edit config.json — set your database details, change Port to e.g. 8443 for local use
+# (Port 443 requires elevated privileges on Linux)
+npm start
+```
+
+> ⚠️ **Do not run the application as root.** Running server applications as root is a significant security risk. If you need to bind to a privileged port such as 443, either change `Port` in `config.json` to an unprivileged port (e.g. `8443`), or grant Node.js the capability to bind low-numbered ports without root:
+> ```bash
+> sudo setcap cap_net_bind_service=+ep $(which node)
+> ```
+
+`setup.js` copies `sample-config.json` to `config.json` and replaces `ServerAuth` with a freshly generated random value. It will not overwrite an existing `config.json`.
+
+### Option 2: Package into a standalone Linux binary with `pkg`
+
+Produces a self-contained executable that does not require Node.js on the target machine.
+
+```bash
+cd DayZWebService
+npm install
+npx pkg . --targets node16-linux-x64 --output dayz-webservice-linux
+```
+
+Run the output binary on any Linux x64 server:
+
+```bash
+./dayz-webservice-linux
+```
+
+> **Note:** SQLite uses `better-sqlite3`, which is a native addon. With `pkg`, native addons generally cannot be loaded from the bundled snapshot, so copying only `better_sqlite3.node` next to the executable is usually **not enough**.
+>
+> If you plan to use SQLite, the most reliable option is to run the backend directly with Node.js (Option 1). If you still want to use `pkg`, deploy the executable **alongside the full `better-sqlite3` package layout** so `require('better-sqlite3')` can resolve its JavaScript wrapper and native binary from `node_modules/better-sqlite3/`.
+>
+> Example deployment layout:
+> ```bash
+> mkdir -p deploy/node_modules
+> cp dayz-webservice-linux deploy/
+> cp -R node_modules/better-sqlite3 deploy/node_modules/
+> cd deploy
+> ./dayz-webservice-linux
+> ```
+
+### Database Configuration
+
+Run `node setup.js` (or copy `sample-config.json` to `config.json` manually) and set `DBType` to match your database:
+
+| `DBType` value | Database |
+|---|---|
+| `"mongodb"` | MongoDB (default) |
+| `"sqlite"` or `"sqlite3"` | SQLite3 (file-based, simplest for local use) |
+| `"postgresql"`, `"postgres"`, or `"pg"` | PostgreSQL |
+
+**Example — SQLite (no separate server required):**
+```json
+{
+  "DBType": "sqlite",
+  "DBServer": "./mydb.sqlite"
+}
+```
