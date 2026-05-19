@@ -72,9 +72,17 @@ Run the output binary on any Linux x64 server:
 ./dayz-webservice-linux
 ```
 
-> **Note:** `better-sqlite3` is a native addon. If using SQLite, copy its compiled native module alongside the binary:
+> **Note:** SQLite uses `better-sqlite3`, which is a native addon. With `pkg`, native addons generally cannot be loaded from the bundled snapshot, so copying only `better_sqlite3.node` next to the executable is usually **not enough**.
+>
+> If you plan to use SQLite, the most reliable option is to run the backend directly with Node.js (Option 1). If you still want to use `pkg`, deploy the executable **alongside the full `better-sqlite3` package layout** so `require('better-sqlite3')` can resolve its JavaScript wrapper and native binary from `node_modules/better-sqlite3/`.
+>
+> Example deployment layout:
 > ```bash
-> cp node_modules/better-sqlite3/build/Release/better_sqlite3.node ./
+> mkdir -p deploy/node_modules
+> cp dayz-webservice-linux deploy/
+> cp -R node_modules/better-sqlite3 deploy/node_modules/
+> cd deploy
+> ./dayz-webservice-linux
 > ```
 
 ### Database Configuration
