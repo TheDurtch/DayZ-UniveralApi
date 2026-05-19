@@ -54,7 +54,10 @@ node setup.js        # creates config.json with a unique ServerAuth
 npm start
 ```
 
-> ⚠️ **Do not run the application as root.** Running server applications as root is a significant security risk. If you need to bind to a privileged port such as 443, change `Port` in `config.json` to an unprivileged port (e.g. `8443`) instead.
+> ⚠️ **Do not run the application as root.** Running server applications as root is a significant security risk. If you need to bind to a privileged port such as 443, either change `Port` in `config.json` to an unprivileged port (e.g. `8443`), or grant Node.js the capability to bind low-numbered ports without root:
+> ```bash
+> sudo setcap cap_net_bind_service=+ep $(which node)
+> ```
 
 `setup.js` copies `sample-config.json` to `config.json` and replaces `ServerAuth` with a freshly generated random value. It will not overwrite an existing `config.json`.
 
