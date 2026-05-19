@@ -1,5 +1,4 @@
 
-const { MongoClient } = require("mongodb");
 const {writeFileSync} = require('fs');
 const ConfigPath = "config.json";
 const log = require("./log");
@@ -191,32 +190,8 @@ function versionCompare(v1, v2, options) {
 
 
 async function InstallIndexes(){
-  
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
-    let returnvalue = false;
-    try{
-      await client.connect(); 
-      const db = client.db(global.config.DB);
-      let pcollection = db.collection("Players");
-      const resultGUID = await pcollection.createIndex({ GUID: 1 });
-      //console.log(resultGUID);
-      const resultAUTH = await pcollection.createIndex({ GUID: 1, AUTH: 1 });
-      //console.log(resultAUTH);
-      let ocollection = db.collection("Objects");
-      const oresult = await ocollection.createIndex({ ObjectId: 1, Mod: 1});
-      //console.log(oresult);
-      let gcollection = db.collection("Globals");
-      const gresult = await gcollection.createIndex({ Mod: 1 });
-      //console.log(gresult);
-      log("Successfully Created Indexes")
-      returnvalue= true;
-    } catch(e){
-      log(e, "warn");
-      returnvalue= false;
-    }finally{
-      await client.close();
-      return returnvalue;
-    }
+    const {installIndexes} = require('./db');
+    return installIndexes();
   }
   async function CheckIndexes(){
       if (global.config.CreateIndexes === undefined || global.config.CreateIndexes === null || global.config.CreateIndexes === true){

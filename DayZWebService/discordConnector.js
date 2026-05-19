@@ -2,7 +2,7 @@ global.DISCORDSTATUS = "Pending";
 const {Router} = require('express');
 const {isArray, isObject,NormalizeToGUID,GenerateLimiter} = require('./utils')
 const {CheckAuth, CheckPlayerAuth,AuthPlayerGuid,CheckServerAuth} = require("./AuthChecker");
-const { MongoClient } = require("mongodb");
+const { createClient } = require('./db');
 const {createHash} = require('crypto');
 const {readFileSync, writeFileSync, existsSync, mkdirSync} = require('fs');
 const {render} = require('ejs');
@@ -457,7 +457,7 @@ async function HandleCallBack(req, res){
         res.send(render(ErrorTemplate, {TheError: "Invalid Response from Discord", Type: "Discord"}));
         return;
     }
-    const mongo = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const mongo = createClient();
     try {
         let connect = mongo.connect();
         const response = await fetch(`https://discordapp.com/api/oauth2/token`,{
@@ -678,7 +678,7 @@ async function RemoveRole(res, req, GUID, auth){
 
 async function GetUserAndRoles(res, req, GUID, auth){
     if (CheckServerAuth(auth) || (await CheckPlayerAuth(GUID, auth))){
-        const mongo = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const mongo = createClient();
         try{
             await mongo.connect();
             // Connect the client to the server
@@ -1215,7 +1215,7 @@ async function ReMapMessage(obj) {
 }
 
 async function CheckId(res, req, id, guid){
-    const mongo = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const mongo = createClient();
         try{
             await mongo.connect();
             // Connect the client to the server        
@@ -1257,7 +1257,7 @@ async function CheckId(res, req, id, guid){
 }
 
 async function CheckIdHasRole(res, req, id, guid, roleid){
-    const mongo = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const mongo = createClient();
         try{
             await mongo.connect();
             // Connect the client to the server        
@@ -1321,7 +1321,7 @@ async function CheckIdHasRole(res, req, id, guid, roleid){
 
 
 async function GetGUIDFromDiscordId(dsid){
-    const mongo = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const mongo = createClient();
     let guid = "";
     try{
         await mongo.connect();
@@ -1347,7 +1347,7 @@ async function GetGUIDFromDiscordId(dsid){
 }
 
 async function GetDiscordObj(guid){
-    const mongo = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const mongo = createClient();
     let obj;
     try{
         await mongo.connect();

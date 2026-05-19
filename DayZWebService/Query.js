@@ -1,6 +1,5 @@
 const { Router } = require('express');
-const { MongoClient } = require("mongodb");
-
+const { createClient } = require('./db');
 
 const log = require("./log");
 const {isArray,isObject,CleanRegEx, GenerateLimiter} = require('./utils');
@@ -39,7 +38,7 @@ function GetCollection(URL){
 async function runQuery(req, res, mod, auth, COLL) {
     if (CheckServerAuth(auth) || ((await CheckAuth(auth)) && COLL === "Objects") ){
         var RawData = req.body;
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         try{
 
             // Connect the client to the server
@@ -114,7 +113,7 @@ async function runQuery(req, res, mod, auth, COLL) {
 async function runUpdateFromQuery(req, res, mod, auth, COLL) {
     if ( CheckServerAuth(auth) || ((await CheckAuth(auth)) && global.config.AllowClientWrite) ){
         let RawData = req.body;
-        const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+        const client = createClient();
         try{
             await client.connect();
             let query = JSON.parse(RawData.Query.Query);

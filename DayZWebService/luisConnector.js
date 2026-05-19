@@ -1,5 +1,4 @@
 const { Router } = require('express');
-const { MongoClient } = require("mongodb");
 
 const log = require("./log")
 const fetch  = require('node-fetch');

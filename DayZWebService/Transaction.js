@@ -1,6 +1,5 @@
 const {Router} = require('express');
-const { MongoClient } = require("mongodb");
-
+const { createClient } = require('./db');
 const log = require("./log");
 
 const {CheckAuth,CheckServerAuth} = require('./AuthChecker');
@@ -45,7 +44,7 @@ async function Transaction(req, res, mod, id, auth, COLL){
 }
 
 async function RunTransaction(data, res, mod, id, COLL){
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const client = createClient();
     try{
         // Connect the client to the server
         await client.connect();
@@ -87,7 +86,7 @@ async function RunTransaction(data, res, mod, id, COLL){
 
 async function RunValidatedTransaction(data, res, mod, id, COLL){
 
-    const client = new MongoClient(global.config.DBServer, { useUnifiedTopology: true });
+    const client = createClient();
     try{
         // Connect the client to the server
         await client.connect();
