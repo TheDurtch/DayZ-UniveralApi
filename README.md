@@ -2,7 +2,7 @@
 
 > ⚠️ **EXPERIMENTAL — NO SUPPORT PROVIDED**
 >
-> This is a very experimental test project (and an inside joke with the owner of Memento Mori DayZ server as he know my venomous hate for mongodb). It is shared as-is for reference and exploration only.
+> This is a very experimental test project (and an inside joke with the owner of Memento Mori DayZ server as he knows of my venomous hatred for MongoDB). It is shared as-is for reference and exploration only.
 > **I will not provide support, bug fixes, or assistance of any kind.** Use at your own risk.
 > Pull requests are welcome, but there is no guarantee they will be reviewed or merged.
 
