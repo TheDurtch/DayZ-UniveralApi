@@ -45,16 +45,16 @@ The `DayZWebService` backend is a **Node.js application** — there is no tradit
 
 Requires Node.js (v16+) installed on the Linux machine.
 
-> **Note:** `sample-config.json` may set `"Port": 443`, which is a privileged port on Linux. For local testing, change `Port` in `config.json` to an unprivileged port such as `8443` before running `npm start`, unless you intentionally run with the required privileges/capabilities.
-
 ```bash
 cd DayZWebService
 npm install
-cp sample-config.json config.json
-# Edit config.json with your database settings, auth key, etc.
-# On Linux, set Port to an unprivileged value such as 8443 unless using privileges/cap_net_bind_service for 443
+node setup.js        # creates config.json with a unique ServerAuth
+# Edit config.json — set your database details, change Port to e.g. 8443 for local use
+# (Port 443 requires elevated privileges on Linux)
 npm start
 ```
+
+`setup.js` copies `sample-config.json` to `config.json` and replaces `ServerAuth` with a freshly generated random value. It will not overwrite an existing `config.json`.
 
 ### Option 2: Package into a standalone Linux binary with `pkg`
 
@@ -87,7 +87,7 @@ Run the output binary on any Linux x64 server:
 
 ### Database Configuration
 
-Copy `sample-config.json` to `config.json` and set `DBType` to match your database:
+Run `node setup.js` (or copy `sample-config.json` to `config.json` manually) and set `DBType` to match your database:
 
 | `DBType` value | Database |
 |---|---|
