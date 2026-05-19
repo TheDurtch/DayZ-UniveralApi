@@ -1,19 +1,28 @@
 # DayZ Universal Api
- 
-The Universal Api Mod and Webservice this is my attempt to make a Universal Api Backend for the server hosters, allowing for a robust, easy to use and set up backend. and for modders an easy to use API wrapper to help them make hived and cross-server mods more easily. With the mod and API I handle authentication and client tokens allowing you to ensure that the data you are accessing and using is secured, preventing rouge and unwanted access to the APIs.
 
-All the Modder/Developer documentation is available here https://github.com/daemonforge/DayZ-UniveralApi/wiki/Developer-Reference
-_(I will accept pull requests if someone wants to add features for there own ideas)_
+> ⚠️ **EXPERIMENTAL — NO SUPPORT PROVIDED**
+>
+> This is a very experimental test project. It is shared as-is for reference and exploration only.
+> **I will not provide support, bug fixes, or assistance of any kind.** Use at your own risk.
+> Pull requests are welcome, but there is no guarantee they will be reviewed or merged.
+
+The Universal Api Mod and Webservice — my attempt to make a Universal Api Backend for DayZ server hosters, allowing for a robust, easy-to-use backend. For modders, it provides an easy-to-use API wrapper to help make hived and cross-server mods more easily. With the mod and API, authentication and client tokens are handled to help prevent unwanted access to the APIs.
+
+> **Note:** The web service is primarily tested against MongoDB. SQLite and PostgreSQL backend support exists in `db.js` but is not fully wired through all authentication paths and should be considered incomplete.
+
+Developer documentation (from the original project) is available here: https://github.com/daemonforge/DayZ-UniveralApi/wiki/Developer-Reference
+
 ### Database Functions
-- Load/Save Objects(JSON)
-- Update Objects (can set sub Elements/Variables including Pull and Push from Arrays) 
-- Transactions (increment float/ints in database with constancy (aka from multiple servers at once)
+- Load/Save Objects (JSON)
+- Update Objects (can set sub-elements/variables including Pull and Push from Arrays)
+- Transactions (increment floats/ints in database with consistency across multiple servers)
 - Queries (MongoDB Queries)
-### Discord Functions 
-- Simple Web Interface for players to connect there steam accounts to discord (customizable for server owners) 
+
+### Discord Functions
+- Simple web interface for players to link their Steam accounts to Discord (customizable for server owners)
 - Add/Remove Roles
-- Get User (Returns an object with current Roles and Discord ID/Name)
-- Send Message (Sends DM from bot to player, player doesn't have to be connected to DayZ server at the time)
+- Get User (returns an object with current Roles and Discord ID/Name)
+- Send Message (sends a DM from bot to player; player doesn't have to be connected to DayZ at the time)
 - Create/Edit/Delete Channels
 - Send Message to Channels
 - Get Messages from Channels
@@ -21,8 +30,9 @@ _(I will accept pull requests if someone wants to add features for there own ide
 - Mute User in Voice Channel
 - Kick User from Voice Channel
 - Get User's current Voice Channel
-### Other Stuff
+
+### Other Features
 - Quantum Random Numbers
 - Toxicity Checker (TensorFlow Toxicity)
 - Translate (Libre Translate)
-- And More
+- And more
